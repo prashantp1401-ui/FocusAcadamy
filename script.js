@@ -139,7 +139,7 @@ const QUOTES = [
   { q: "Readiness is a percentage, not a feeling.", meaning: "Track progress with numbers so doubt has less room to speak.", apply: "Check today's readiness score before deciding you're 'not ready yet.'", life: "Measurable progress quiets the loudest inner critic.", career: "You can defend a 78% readiness score in an interview far better than a vague feeling." },
   { q: "Revision is where forgetting goes to die.", meaning: "Spaced repetition beats one-time learning.", apply: "Spend ten minutes today re-reading a topic from a week ago.", life: "What you don't revisit, you quietly lose.", career: "Interviewers ask about fundamentals from months ago — keep them alive." },
   { q: "A project in your GitHub is worth ten claims on your resume.", meaning: "Proof beats assertion.", apply: "Push today's practice file to your portfolio repo, even if it's small.", life: "Show, don't tell, applies far beyond writing.", career: "Recruiters skim resumes but click on GitHub links." },
-  { q: "Twelve lakhs is a number; the habits that reach it are the real goal.", meaning: "The target is a proxy for the identity you're building.", apply: "Ask what today's habits say about the analyst you're becoming.", life: "Chase the process and the outcome tends to follow.", career: "Interviewers hire the habits, not the number on your target salary." },
+  { q: "Twelve lakhs is a number; the habits that reach it are the real goal.", meaning: "The target is a proxy for the identity you're becoming.", apply: "Ask what today's habits say about the analyst you're becoming.", life: "Chase the process and the outcome tends to follow.", career: "Interviewers hire the habits, not the number on your target salary." },
   { q: "The mock interview you dread is the real interview you'll ace.", meaning: "Rehearsal converts fear into familiarity.", apply: "Record yourself answering today's five mock questions out loud.", life: "Practiced discomfort in private prevents panic in public.", career: "Fluent, rehearsed answers read as confidence to a panel." },
   { q: "Data cleaning is 80% of the job and 100% of the reputation.", meaning: "Unseen rigor builds trust in your visible output.", apply: "Double-check today's dataset before building anything on top of it.", life: "Reliability is built in the parts no one applauds.", career: "Analysts known for clean data get handed the interesting projects." },
   { q: "You are one dashboard away from your next portfolio piece.", meaning: "Progress is closer than it feels.", apply: "Ship today's mini project even if it isn't perfect.", life: "'Good enough and shipped' beats 'perfect and shelved.'", career: "A finished, imperfect project outproves an unfinished, ideal one." },
@@ -169,7 +169,7 @@ const VOCAB_POOL = [
   ["Benchmark", "/ˈbentʃ.mɑːrk/", "a standard used for comparison", "Compare this quarter's churn rate to the industry benchmark."],
   ["Robust", "/roʊˈbʌst/", "strong and unlikely to fail", "We need a robust pipeline that handles missing data gracefully."],
   ["Redundant", "/rɪˈdʌn.dənt/", "no longer needed; duplicated", "Remove the redundant columns before loading the table."],
-  ["Proactive", "/proʊˈæk.tɪv/", "acting in advance of a future situation", "Being proactive about data quality avoids issues downstream." ],
+  ["Proactive", "/proʊˈæk.tɪv/", "acting in advance of a future situation", "Being proactive about data quality avoids issues downstream."],
   ["Consolidate", "/kənˈsɒl.ɪ.deɪt/", "to combine into a single, coherent whole", "Consolidate all regional reports into one master sheet."],
   ["Discrepancy", "/dɪˈskrep.ən.si/", "a difference between things that should match", "There's a discrepancy between the two revenue figures."],
   ["Mitigate", "/ˈmɪt.ɪ.ɡeɪt/", "to make a problem less severe", "Add validation rules to mitigate future data-entry errors."],
@@ -202,7 +202,7 @@ const QUESTION_BANK = {
 };
 
 /* ============================================================
-   HELPERS (same logic as the React version)
+   HELPERS
    ============================================================ */
 function clampDay(d) { return Math.max(1, Math.min(TOTAL_DAYS, d)); }
 function getPhase(day) {
@@ -293,14 +293,14 @@ function esc(s) {
 }
 
 /* ============================================================
-   APPLICATION STATE (in-memory only, mirrors React useState)
+   APPLICATION STATE (in-memory only)
    ============================================================ */
 const state = {
   theme: "dark",
   tab: "dashboard",
   mobileMore: false,
   day: 37,
-  completed: {},          // { [day]: { [taskId]: true } }
+  completed: {},
   xp: 1240,
   coins: 340,
   streak: 12,
@@ -354,35 +354,37 @@ function render() {
   const doneCount = checklist.tasks.filter((t) => doneMap[t.id]).length;
   const dayPct = Math.round((doneCount / checklist.tasks.length) * 100);
 
+  // Remember scroll + focus state for the active textual input so re-renders don't jar mobile typing
+  const activeId = document.activeElement ? document.activeElement.id : null;
+  const activeSelStart = (document.activeElement && 'selectionStart' in document.activeElement) ? document.activeElement.selectionStart : null;
+
   app.innerHTML = `
     ${renderSidebar()}
     <div id="main">
       ${renderTopbar()}
       <div id="content">
         ${state.missedBanner ? renderMissedBanner() : ""}
-        <div class="tab-view ${state.tab === 'dashboard' ? 'active' : ''}" data-tab="dashboard"></div>
-        <div class="tab-view ${state.tab === 'today' ? 'active' : ''}" data-tab="today"></div>
-        <div class="tab-view ${state.tab === 'roadmap' ? 'active' : ''}" data-tab="roadmap"></div>
-        <div class="tab-view ${state.tab === 'projects' ? 'active' : ''}" data-tab="projects"></div>
-        <div class="tab-view ${state.tab === 'mentor' ? 'active' : ''}" data-tab="mentor"></div>
-        <div class="tab-view ${state.tab === 'interview' ? 'active' : ''}" data-tab="interview"></div>
-        <div class="tab-view ${state.tab === 'progress' ? 'active' : ''}" data-tab="progress"></div>
-        <div class="tab-view ${state.tab === 'vocab' ? 'active' : ''}" data-tab="vocab"></div>
-        <div class="tab-view ${state.tab === 'notes' ? 'active' : ''}" data-tab="notes"></div>
-        <div class="tab-view ${state.tab === 'jobs' ? 'active' : ''}" data-tab="jobs"></div>
-        <div class="tab-view ${state.tab === 'resume' ? 'active' : ''}" data-tab="resume"></div>
-        <div class="tab-view ${state.tab === 'settings' ? 'active' : ''}" data-tab="settings"></div>
+        <div class="tab-view active" data-tab="${state.tab}"></div>
       </div>
     </div>
     ${renderMobileNav()}
     ${renderMoreSheet()}
   `;
 
-  // fill the active tab content (only render what's visible, cheap re-render each time)
   const target = app.querySelector(`.tab-view[data-tab="${state.tab}"]`);
   target.innerHTML = renderTabContent(state.tab, { checklist, quote, vocab, readiness, overallPct, doneMap, doneCount, dayPct });
 
   attachHandlers();
+
+  if (activeId) {
+    const el = document.getElementById(activeId);
+    if (el) {
+      el.focus();
+      if (activeSelStart !== null && 'setSelectionRange' in el) {
+        try { el.setSelectionRange(activeSelStart, activeSelStart); } catch (e) {}
+      }
+    }
+  }
 }
 
 function renderSidebar() {
@@ -402,14 +404,14 @@ function renderSidebar() {
         </button>
       `).join('')}
     </nav>
-    <button id="sidebarThemeToggle" class="theme-toggle-btn">
+    <button id="sidebarThemeToggle" class="theme-toggle-btn" aria-label="Toggle theme">
       ${state.theme === 'dark' ? icon('sun', 15) : icon('moon', 15)} ${state.theme === 'dark' ? 'Light mode' : 'Dark mode'}
     </button>
   </aside>`;
 }
 
 function renderTopbar() {
-  const label = NAV.find(n => n.id === state.tab)?.label || "";
+  const label = (NAV.find(n => n.id === state.tab) || {}).label || "";
   return `
   <div id="topbar">
     <div class="topbar-brand">
@@ -421,7 +423,7 @@ function renderTopbar() {
       <span class="pill" style="background: ${AMBER}1A; color:${AMBER};">${icon('flame',12,AMBER)} ${state.streak}d</span>
       <span class="pill" style="background: ${CYAN}1A; color:${CYAN};">${icon('zap',12,CYAN)} ${state.xp} XP</span>
       <span class="pill" style="background: ${VIOLET}1A; color:${VIOLET};">${icon('coins',12,VIOLET)} ${state.coins}</span>
-      <button id="topbarThemeToggle" class="theme-toggle-mobile">${state.theme === 'dark' ? icon('sun', 15) : icon('moon', 15)}</button>
+      <button id="topbarThemeToggle" class="theme-toggle-mobile" aria-label="Toggle theme">${state.theme === 'dark' ? icon('sun', 15) : icon('moon', 15)}</button>
     </div>
   </div>`;
 }
@@ -431,7 +433,7 @@ function renderMissedBanner() {
   <div class="panel mb-4" style="border-color:${CORAL};">
     <div class="flex flex-wrap items-center justify-between gap-3">
       <div class="flex items-start gap-3">
-        <div style="margin-top:2px;">${icon('alert', 20, CORAL)}</div>
+        <div style="margin-top:2px;flex-shrink:0;">${icon('alert', 20, CORAL)}</div>
         <div>
           <div class="font-display text-sm font-bold">Missed-day recovery plan ready</div>
           <div class="mt-1 text-sm paper-dim">You skipped ${state.recoveryTasks.length} day(s). Here's a condensed catch-up so you don't have to redo the full checklist for each:</div>
@@ -455,7 +457,7 @@ function renderMobileNav() {
       <button class="mnav-btn ${state.tab === n.id ? 'active' : ''}" data-nav="${n.id}">
         ${icon(n.icon, 18, state.tab === n.id ? AMBER : 'var(--fog)')} ${n.label}
       </button>`).join('')}
-    <button id="moreBtn" class="mnav-btn">${icon('menu', 18, 'var(--fog)')} More</button>
+    <button id="moreBtn" class="mnav-btn" aria-label="More tabs">${icon('menu', 18, 'var(--fog)')} More</button>
   </div>`;
 }
 
@@ -465,7 +467,7 @@ function renderMoreSheet() {
     <div class="sheet-inner" onclick="event.stopPropagation()">
       <div class="flex items-center justify-between mb-3">
         <span class="font-display text-sm font-bold">More</span>
-        <button id="closeMoreBtn" style="background:none;border:none;color:var(--paper);">${icon('x', 18)}</button>
+        <button id="closeMoreBtn" style="background:none;border:none;color:var(--paper);" aria-label="Close menu">${icon('x', 18)}</button>
       </div>
       <div class="sheet-grid">
         ${mobileRest.map(n => `
@@ -573,15 +575,11 @@ function renderDashboard(ctx) {
       ${statBlock('target', "Today's progress", dayPct + '%', AMBER)}
     </div>
 
-    <div class="grid lg-grid-3" style="grid-template-columns: 1fr;">
-      <div class="grid lg-grid-3" style="display:grid;gap:16px;grid-template-columns:1fr;">
-      </div>
-    </div>
-    <div class="dash-two-col" style="display:grid;gap:16px;grid-template-columns:1fr;">
-      <div class="panel" style="grid-column: span 2;">
+    <div class="dash-grid">
+      <div class="panel">
         <div class="flex items-center gap-2 mb-2">${icon('quote',15,AMBER)}<span class="font-display text-sm font-bold">Today's quote</span></div>
         <div class="text-lg font-medium paper">"${esc(quote.q)}"</div>
-        <div class="mt-3 grid sm-grid-2 text-sm paper-dim" style="gap:8px;">
+        <div class="mt-3 grid sm-grid-2 text-sm paper-dim">
           <div><span style="color:${CYAN}">Meaning: </span>${esc(quote.meaning)}</div>
           <div><span style="color:${CYAN}">Apply today: </span>${esc(quote.apply)}</div>
           <div><span style="color:${CYAN}">Life lesson: </span>${esc(quote.life)}</div>
@@ -656,7 +654,7 @@ function renderToday(ctx) {
         const done = !!doneMap[t.id];
         return `
         <div class="panel task-panel" style="border-color:${done ? CYAN : 'var(--border)'}; opacity:${done ? 0.75 : 1};">
-          <button class="task-toggle" data-toggle-task="${t.id}">
+          <button class="task-toggle" data-toggle-task="${t.id}" aria-label="Toggle ${esc(t.title)}">
             ${done ? icon('check', 20, CYAN) : icon('circle', 20, 'var(--fog)')}
           </button>
           <div style="min-width:0;flex:1;">
@@ -684,7 +682,7 @@ function renderToday(ctx) {
       </div>
     </div>` : ''}
 
-    <button id="advanceDayBtn" class="btn-primary" style="position:relative; background:${allDone ? AMBER : 'var(--panel2)'}; color:${allDone ? '#0B1120' : 'var(--fog)'}; cursor:${allDone ? 'pointer' : 'not-allowed'};" ${allDone ? '' : 'disabled'}>
+    <button id="advanceDayBtn" class="btn-primary" style="background:${allDone ? AMBER : 'var(--panel2)'}; color:${allDone ? '#0B1120' : 'var(--fog)'}; cursor:${allDone ? 'pointer' : 'not-allowed'};" ${allDone ? '' : 'disabled'}>
       ${state.confetti ? `<span id="confetti-el">🎉✨🎊</span>` : ''}
       ${allDone ? "Mark day complete & launch into tomorrow →" : `Complete all tasks to advance (${leftCount} left)`}
     </button>
@@ -707,7 +705,7 @@ function renderRoadmap(ctx) {
         <div class="panel" style="border-color:${status === 'In progress' ? color : 'var(--border)'};">
           <div class="flex flex-wrap items-center justify-between gap-2">
             <div class="flex items-center gap-3">
-              <div style="display:flex;height:32px;width:32px;align-items:center;justify-content:center;border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;background:${color}22;color:${color};">${p.id}</div>
+              <div style="display:flex;height:32px;width:32px;flex-shrink:0;align-items:center;justify-content:center;border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;background:${color}22;color:${color};">${p.id}</div>
               <div>
                 <div class="font-medium paper">${esc(p.name)}</div>
                 <div class="text-xs fog">Day ${p.start}–${p.end} · ${p.topics.length} topics</div>
@@ -749,7 +747,7 @@ function renderProjects() {
 
 function renderMentor() {
   return `
-  <div style="display:flex;flex-direction:column;height:70vh;">
+  <div class="mentor-page">
     <div class="font-display text-xl font-bold mb-3">AI Mentor</div>
     <div class="panel mentor-log">
       ${state.mentorLog.map(m => `
@@ -757,9 +755,9 @@ function renderMentor() {
           <div class="mentor-bubble" style="background:${m.role === 'user' ? AMBER : 'var(--panel2)'}; color:${m.role === 'user' ? '#0B1120' : 'var(--paper)'};">${esc(m.text)}</div>
         </div>`).join('')}
     </div>
-    <div class="mt-3 flex gap-2">
+    <div class="mentor-input-row">
       <input id="mentorInputEl" type="text" placeholder="Ask: what should I study today?" value="${esc(state.mentorInput)}" />
-      <button id="mentorSendBtn" style="border-radius:8px;padding:0 16px;background:${VIOLET};border:none;display:flex;align-items:center;">${icon('send',16,'#0B1120')}</button>
+      <button id="mentorSendBtn" class="mentor-send-btn" aria-label="Send">${icon('send',16,'#0B1120')}</button>
     </div>
     <div class="mt-2 flex flex-wrap gap-2">
       ${["Aaj mujhe kya padhna chahiye?", "How ready am I in SQL?", "What should I revise?"].map(q => `
@@ -785,7 +783,7 @@ function renderInterview() {
         <div class="mb-1">${pill(q.skill, VIOLET, true)}</div>
         <div class="font-medium paper">${esc(q.text)}</div>
         <textarea data-interview-key="${key}" rows="3" placeholder="Speak your answer out loud, then jot the key points here...">${esc(answer)}</textarea>
-        <button class="mt-2" data-toggle-interview="${key}" style="display:flex;align-items:center;gap:6px;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:500;border:none;background:${recorded ? CYAN : 'var(--panel2)'};color:${recorded ? '#0B1120' : 'var(--paper-dim)'};">
+        <button class="mt-2" data-toggle-interview="${key}" style="display:flex;align-items:center;gap:6px;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:500;border:none;min-height:36px;background:${recorded ? CYAN : 'var(--panel2)'};color:${recorded ? '#0B1120' : 'var(--paper-dim)'};">
           ${icon('mic',13)} ${recorded ? "Practiced ✓" : "Mark as practiced"}
         </button>
       </div>`;
@@ -804,10 +802,10 @@ function renderProgress() {
     <div class="grid lg-grid-2">
       <div class="panel">
         <div class="font-display text-sm font-bold mb-2">Weekly study hours</div>
-        <div style="height:220px;display:flex;align-items:flex-end;gap:8px;padding-top:12px;border-bottom:1px solid var(--border);">
+        <div style="height:200px;display:flex;align-items:flex-end;gap:6px;padding-top:12px;border-bottom:1px solid var(--border);overflow-x:auto;">
           ${weekly.map(w => `
-            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
-              <div style="width:100%;max-width:28px;border-radius:4px 4px 0 0;background:${AMBER};height:${Math.max(4,(w.hours/maxHours)*170)}px;" title="${w.hours}h"></div>
+            <div style="flex:1;min-width:24px;display:flex;flex-direction:column;align-items:center;gap:4px;">
+              <div style="width:100%;max-width:28px;border-radius:4px 4px 0 0;background:${AMBER};height:${Math.max(4,(w.hours/maxHours)*150)}px;" title="${w.hours}h"></div>
               <span class="text-xs fog">${w.week}</span>
             </div>`).join('')}
         </div>
@@ -824,7 +822,7 @@ function renderProgress() {
       </div>
     </div>
     <div class="panel">
-      <div class="flex items-center justify-between mb-3">
+      <div class="flex items-center justify-between mb-3" style="flex-wrap:wrap;gap:6px;">
         <span class="font-display text-sm font-bold">240-day heatmap</span>
         <span class="text-xs fog">Streak ${state.streak}d · Longest ${state.longestStreak}d · Overall ${overallPct}%</span>
       </div>
@@ -860,8 +858,8 @@ function renderNotes() {
   <div style="display:flex;flex-direction:column;gap:12px;">
     <div class="font-display text-xl font-bold">Notes — Day ${state.day}</div>
     <div class="panel">
-      <textarea id="notesTextarea" rows="16" style="resize:none;" placeholder="Write markdown notes here — auto-saved to this session...">${esc(state.notesText)}</textarea>
-      <div class="mt-2 text-xs fog">Saved in this session · ${state.notesText.length} characters</div>
+      <textarea id="notesTextarea" rows="14" style="resize:vertical;" placeholder="Write markdown notes here — auto-saved to this session...">${esc(state.notesText)}</textarea>
+      <div class="mt-2 text-xs fog" id="notesCounter">Saved in this session · ${state.notesText.length} characters</div>
     </div>
   </div>`;
 }
@@ -873,19 +871,21 @@ function renderJobs() {
   <div style="display:flex;flex-direction:column;gap:12px;">
     <div class="flex items-center justify-between">
       <div class="font-display text-xl font-bold">Job application tracker</div>
-      <button id="addJobBtn" style="display:flex;align-items:center;gap:4px;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:600;background:${AMBER};color:#0B1120;border:none;">${icon('plus',14,'#0B1120')} Add</button>
+      <button id="addJobBtn" style="display:flex;align-items:center;gap:4px;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;background:${AMBER};color:#0B1120;border:none;min-height:36px;">${icon('plus',14,'#0B1120')} Add</button>
     </div>
     <div style="display:flex;flex-direction:column;gap:10px;">
       ${state.jobs.map(j => `
         <div class="panel">
-          <div class="grid grid-2 sm-grid-3" style="grid-template-columns: repeat(2,1fr); align-items:center;">
-            <input type="text" data-job-id="${j.id}" data-job-field="company" value="${esc(j.company)}" style="background:transparent;" />
-            <input type="text" data-job-id="${j.id}" data-job-field="role" value="${esc(j.role)}" style="background:transparent;" />
-            <input type="text" data-job-id="${j.id}" data-job-field="applied" value="${esc(j.applied)}" style="background:transparent;" />
-            <select data-job-id="${j.id}" data-job-field="status" style="background:transparent; color:${statusColor[j.status]};">
-              ${statuses.map(s => `<option value="${s}" ${s === j.status ? 'selected' : ''}>${s}</option>`).join('')}
-            </select>
-            <button data-remove-job="${j.id}" style="display:flex;align-items:center;justify-content:center;gap:4px;border-radius:8px;padding:4px 8px;font-size:12px;background:none;border:none;color:${CORAL};">${icon('trash',14,CORAL)} Remove</button>
+          <div class="job-card">
+            <div class="job-field"><label>Company</label><input type="text" data-job-id="${j.id}" data-job-field="company" value="${esc(j.company)}" /></div>
+            <div class="job-field"><label>Role</label><input type="text" data-job-id="${j.id}" data-job-field="role" value="${esc(j.role)}" /></div>
+            <div class="job-field"><label>Applied</label><input type="text" data-job-id="${j.id}" data-job-field="applied" value="${esc(j.applied)}" /></div>
+            <div class="job-field"><label>Status</label>
+              <select data-job-id="${j.id}" data-job-field="status" style="color:${statusColor[j.status]};">
+                ${statuses.map(s => `<option value="${s}" ${s === j.status ? 'selected' : ''}>${s}</option>`).join('')}
+              </select>
+            </div>
+            <button class="job-remove-btn" data-remove-job="${j.id}">${icon('trash',14,CORAL)} Remove</button>
           </div>
         </div>`).join('')}
       ${state.jobs.length === 0 ? `<div class="text-sm fog">No applications yet — add your first one above.</div>` : ''}
@@ -954,7 +954,7 @@ function renderSettings() {
 }
 
 /* ============================================================
-   MENTOR LOGIC (identical rules to React version)
+   MENTOR LOGIC
    ============================================================ */
 function sendMentor(customText) {
   const text = (customText !== undefined ? customText : state.mentorInput).trim();
@@ -990,7 +990,6 @@ function sendMentor(customText) {
   state.mentorLog.push({ role: "ai", text: reply });
   state.mentorInput = "";
   render();
-  // scroll mentor log to bottom + refocus input if mentor tab active
   requestAnimationFrame(() => {
     const log = document.querySelector('.mentor-log');
     if (log) log.scrollTop = log.scrollHeight;
@@ -998,7 +997,7 @@ function sendMentor(customText) {
 }
 
 /* ============================================================
-   ACTIONS (mirror React state setters)
+   ACTIONS
    ============================================================ */
 function toggleTask(id) {
   const dayMap = { ...(state.completed[state.day] || {}) };
@@ -1041,7 +1040,6 @@ function simulateMissedDays() {
 function attachHandlers() {
   const app = document.getElementById("app");
 
-  // Nav buttons (sidebar, mobile bottom nav, sheet)
   app.querySelectorAll('[data-nav]').forEach(btn => {
     btn.addEventListener('click', () => {
       state.tab = btn.getAttribute('data-nav');
@@ -1050,13 +1048,11 @@ function attachHandlers() {
     });
   });
 
-  // Theme toggles
   const sbToggle = document.getElementById('sidebarThemeToggle');
   if (sbToggle) sbToggle.addEventListener('click', () => { state.theme = state.theme === 'dark' ? 'light' : 'dark'; render(); });
   const tbToggle = document.getElementById('topbarThemeToggle');
   if (tbToggle) tbToggle.addEventListener('click', () => { state.theme = state.theme === 'dark' ? 'light' : 'dark'; render(); });
 
-  // More sheet
   const moreBtn = document.getElementById('moreBtn');
   if (moreBtn) moreBtn.addEventListener('click', () => { state.mobileMore = true; render(); });
   const closeMoreBtn = document.getElementById('closeMoreBtn');
@@ -1064,11 +1060,9 @@ function attachHandlers() {
   const moresheet = document.getElementById('moresheet');
   if (moresheet) moresheet.addEventListener('click', (e) => { if (e.target === moresheet) { state.mobileMore = false; render(); } });
 
-  // Missed banner
   const startRecoveryBtn = document.getElementById('startRecoveryBtn');
   if (startRecoveryBtn) startRecoveryBtn.addEventListener('click', () => { state.missedBanner = false; render(); });
 
-  // Day navigation
   app.querySelectorAll('[data-day-delta]').forEach(btn => {
     btn.addEventListener('click', () => {
       state.day = clampDay(state.day + parseInt(btn.getAttribute('data-day-delta'), 10));
@@ -1082,7 +1076,6 @@ function attachHandlers() {
     });
   });
 
-  // Dashboard mentor quick / simulate missed
   const mentorQuickBtn = document.getElementById('mentorQuickBtn');
   if (mentorQuickBtn) mentorQuickBtn.addEventListener('click', () => {
     sendMentor("Aaj mujhe kya padhna chahiye?");
@@ -1092,20 +1085,16 @@ function attachHandlers() {
   const simulateMissedBtn = document.getElementById('simulateMissedBtn');
   if (simulateMissedBtn) simulateMissedBtn.addEventListener('click', simulateMissedDays);
 
-  // Today tab: task toggles + advance day
   app.querySelectorAll('[data-toggle-task]').forEach(btn => {
     btn.addEventListener('click', () => toggleTask(btn.getAttribute('data-toggle-task')));
   });
   const advanceDayBtn = document.getElementById('advanceDayBtn');
   if (advanceDayBtn) advanceDayBtn.addEventListener('click', advanceDay);
 
-  // Mentor tab
   const mentorInputEl = document.getElementById('mentorInputEl');
   if (mentorInputEl) {
     mentorInputEl.addEventListener('input', (e) => { state.mentorInput = e.target.value; });
     mentorInputEl.addEventListener('keydown', (e) => { if (e.key === 'Enter') sendMentor(); });
-    mentorInputEl.focus();
-    mentorInputEl.selectionStart = mentorInputEl.value.length;
   }
   const mentorSendBtn = document.getElementById('mentorSendBtn');
   if (mentorSendBtn) mentorSendBtn.addEventListener('click', () => sendMentor());
@@ -1113,7 +1102,6 @@ function attachHandlers() {
     btn.addEventListener('click', () => sendMentor(btn.getAttribute('data-mentor-quick')));
   });
 
-  // Interview tab
   app.querySelectorAll('[data-interview-key]').forEach(ta => {
     ta.addEventListener('input', (e) => {
       state.interviewAnswers[ta.getAttribute('data-interview-key')] = e.target.value;
@@ -1127,17 +1115,15 @@ function attachHandlers() {
     });
   });
 
-  // Vocabulary / Notes
   const notesTextarea = document.getElementById('notesTextarea');
   if (notesTextarea) {
     notesTextarea.addEventListener('input', (e) => {
       state.notesText = e.target.value;
-      const counter = notesTextarea.parentElement.querySelector('.fog');
+      const counter = document.getElementById('notesCounter');
       if (counter) counter.textContent = `Saved in this session · ${state.notesText.length} characters`;
     });
   }
 
-  // Jobs tab
   const addJobBtn = document.getElementById('addJobBtn');
   if (addJobBtn) addJobBtn.addEventListener('click', () => {
     state.jobs.push({ id: Date.now(), company: "New company", role: "Role", applied: "Today", status: "Applied" });
@@ -1160,7 +1146,6 @@ function attachHandlers() {
     });
   });
 
-  // Settings tab
   const setThemeDark = document.getElementById('setThemeDark');
   if (setThemeDark) setThemeDark.addEventListener('click', () => { state.theme = 'dark'; render(); });
   const setThemeLight = document.getElementById('setThemeLight');
