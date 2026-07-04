@@ -299,18 +299,15 @@ const state = {
   theme: "dark",
   tab: "dashboard",
   mobileMore: false,
-  day: 37,
+  day: 1,
   completed: {},
-  xp: 1240,
-  coins: 340,
-  streak: 12,
-  longestStreak: 18,
+  xp: 0,
+  coins: 0,
+  streak: 0,
+  longestStreak: 0,
   confetti: false,
   notesText: "",
-  jobs: [
-    { id: 1, company: "Zynta Retail", role: "Business Analyst", applied: "2 Jul", status: "Interview" },
-    { id: 2, company: "Nimbus Analytics", role: "Data Analyst", applied: "28 Jun", status: "Applied" },
-  ],
+  jobs: [],
   mentorLog: [
     { role: "ai", text: "Mission Mentor online. Ask me \"Aaj mujhe kya padhna chahiye?\" any time and I'll pull it straight from today's plan." },
   ],
@@ -554,7 +551,7 @@ function renderDashboard(ctx) {
           <div class="font-display mt-1 text-2xl font-bold">Day ${state.day} <span class="fog">of ${TOTAL_DAYS}</span></div>
           <div class="mt-1 text-sm paper-dim">Phase ${checklist.phase.id}/17 — ${esc(checklist.phase.name)} · Today's focus: <span style="color:${AMBER}">${esc(checklist.topic)}</span></div>
         </div>
-        <div class="flex gap-2">
+        <div class="hero-actions">
           <button class="hero-btn" data-day-delta="-1">◀ Prev day</button>
           <button class="hero-btn" data-day-delta="1">Next day ▶</button>
         </div>
@@ -643,7 +640,7 @@ function renderToday(ctx) {
         <div class="font-display text-xl font-bold">Day ${state.day} checklist</div>
         <div class="text-sm paper-dim">${esc(checklist.phase.name)} · ${esc(checklist.topic)} · Difficulty: ${checklist.difficulty}</div>
       </div>
-      <div class="flex gap-2">
+      <div class="hero-actions" style="max-width:160px;">
         <button class="hero-btn" data-day-delta="-1">◀</button>
         <button class="hero-btn" data-day-delta="1">▶</button>
       </div>
