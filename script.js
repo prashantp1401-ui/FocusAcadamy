@@ -139,7 +139,7 @@ const QUOTES = [
   { q: "Readiness is a percentage, not a feeling.", meaning: "Track progress with numbers so doubt has less room to speak.", apply: "Check today's readiness score before deciding you're 'not ready yet.'", life: "Measurable progress quiets the loudest inner critic.", career: "You can defend a 78% readiness score in an interview far better than a vague feeling." },
   { q: "Revision is where forgetting goes to die.", meaning: "Spaced repetition beats one-time learning.", apply: "Spend ten minutes today re-reading a topic from a week ago.", life: "What you don't revisit, you quietly lose.", career: "Interviewers ask about fundamentals from months ago — keep them alive." },
   { q: "A project in your GitHub is worth ten claims on your resume.", meaning: "Proof beats assertion.", apply: "Push today's practice file to your portfolio repo, even if it's small.", life: "Show, don't tell, applies far beyond writing.", career: "Recruiters skim resumes but click on GitHub links." },
-  { q: "Twelve lakhs is a number; the habits that reach it are the real goal.", meaning: "The target is a proxy for the identity you're becoming.", apply: "Ask what today's habits say about the analyst you're becoming.", life: "Chase the process and the outcome tends to follow.", career: "Interviewers hire the habits, not the number on your target salary." },
+  { q: "Twelve lakhs is a number; the habits that reach it are the real goal.", meaning: "The target is a proxy for the identity you're building.", apply: "Ask what today's habits say about the analyst you're becoming.", life: "Chase the process and the outcome tends to follow.", career: "Interviewers hire the habits, not the number on your target salary." },
   { q: "The mock interview you dread is the real interview you'll ace.", meaning: "Rehearsal converts fear into familiarity.", apply: "Record yourself answering today's five mock questions out loud.", life: "Practiced discomfort in private prevents panic in public.", career: "Fluent, rehearsed answers read as confidence to a panel." },
   { q: "Data cleaning is 80% of the job and 100% of the reputation.", meaning: "Unseen rigor builds trust in your visible output.", apply: "Double-check today's dataset before building anything on top of it.", life: "Reliability is built in the parts no one applauds.", career: "Analysts known for clean data get handed the interesting projects." },
   { q: "You are one dashboard away from your next portfolio piece.", meaning: "Progress is closer than it feels.", apply: "Ship today's mini project even if it isn't perfect.", life: "'Good enough and shipped' beats 'perfect and shelved.'", career: "A finished, imperfect project outproves an unfinished, ideal one." },
@@ -169,7 +169,7 @@ const VOCAB_POOL = [
   ["Benchmark", "/ˈbentʃ.mɑːrk/", "a standard used for comparison", "Compare this quarter's churn rate to the industry benchmark."],
   ["Robust", "/roʊˈbʌst/", "strong and unlikely to fail", "We need a robust pipeline that handles missing data gracefully."],
   ["Redundant", "/rɪˈdʌn.dənt/", "no longer needed; duplicated", "Remove the redundant columns before loading the table."],
-  ["Proactive", "/proʊˈæk.tɪv/", "acting in advance of a future situation", "Being proactive about data quality avoids issues downstream."],
+  ["Proactive", "/proʊˈæk.tɪv/", "acting in advance of a future situation", "Being proactive about data quality avoids issues downstream." ],
   ["Consolidate", "/kənˈsɒl.ɪ.deɪt/", "to combine into a single, coherent whole", "Consolidate all regional reports into one master sheet."],
   ["Discrepancy", "/dɪˈskrep.ən.si/", "a difference between things that should match", "There's a discrepancy between the two revenue figures."],
   ["Mitigate", "/ˈmɪt.ɪ.ɡeɪt/", "to make a problem less severe", "Add validation rules to mitigate future data-entry errors."],
@@ -202,7 +202,7 @@ const QUESTION_BANK = {
 };
 
 /* ============================================================
-   HELPERS
+   HELPERS (same logic as the React version)
    ============================================================ */
 function clampDay(d) { return Math.max(1, Math.min(TOTAL_DAYS, d)); }
 function getPhase(day) {
@@ -222,18 +222,98 @@ function generateChecklist(day) {
   const diffCycle = ["Easy", "Medium", "Hard"];
   const difficulty = diffCycle[day % 3];
   const tasks = [
-    { id: "theory", cat: "Theory", title: `Study: ${topic}`, est: "45 min", priority: "High", resource: phase.res.theory },
-    { id: "video", cat: "Video", title: `Watch a lesson on ${topic}`, est: "30 min", priority: "Medium", resource: phase.res.video },
-    { id: "doc", cat: "Documentation", title: `Read official docs on ${topic}`, est: "20 min", priority: "Medium", resource: phase.res.doc },
-    { id: "practice", cat: "Practice", title: `Hands-on practice: ${topic}`, est: "60 min", priority: "High", resource: phase.res.practice },
-    { id: "assignment", cat: "Assignment", title: `Assignment — apply ${topic}`, est: "40 min", priority: "High", resource: "Self-graded" },
-    { id: "interview", cat: "Interview Questions", title: `Answer 3 interview questions on ${phase.skill}`, est: "20 min", priority: "Medium", resource: "Question Bank" },
-    { id: "english", cat: "English", title: "Speaking, grammar & pronunciation practice", est: "25 min", priority: "Medium", resource: "Daily English Set" },
-    { id: "revision", cat: "Revision", title: "Spaced-repetition revision", est: "15 min", priority: "Medium", resource: "Auto-generated" },
-    { id: "notes", cat: "Notes", title: `Write revision notes on ${topic}`, est: "15 min", priority: "Low", resource: "Notes tab" },
+    { id: "theory", cat: "Theory", title: `Study: ${topic}`, est: "45 min", priority: "High", resource: phase.res.theory,
+      steps: [
+        `Open the resource "${phase.res.theory}" and read the section that covers "${topic}".`,
+        `Write down the core definition of "${topic}" in your own words.`,
+        `List 3 real-world situations where "${topic}" is used in a ${phase.skill} job.`,
+        `Note down any term you don't understand and look it up before moving on.`
+      ],
+      goal: `Understand the concept of "${topic}" well enough to explain it to someone else in 2–3 sentences.`,
+      tip: `Don't just read passively — pause after each paragraph and try to restate the idea in your own words.` },
+    { id: "video", cat: "Video", title: `Watch a lesson on ${topic}`, est: "30 min", priority: "Medium", resource: phase.res.video,
+      steps: [
+        `Search for "${topic} ${phase.skill} tutorial" on "${phase.res.video}".`,
+        `Watch at normal speed first, then re-watch the tricky parts at 0.75x.`,
+        `Pause every 5 minutes and write down one key takeaway.`,
+        `Try to reproduce the example shown in the video on your own machine.`
+      ],
+      goal: `See "${topic}" applied in a real example, not just in theory.`,
+      tip: `Watching without practicing is a common trap — always try the example yourself right after.` },
+    { id: "doc", cat: "Documentation", title: `Read official docs on ${topic}`, est: "20 min", priority: "Medium", resource: phase.res.doc,
+      steps: [
+        `Open "${phase.res.doc}" and find the page related to "${topic}".`,
+        `Read the syntax, parameters, or rules exactly as documented.`,
+        `Compare this with what you learned from the video/theory step — note any differences.`,
+        `Bookmark this page for quick reference during the assignment.`
+      ],
+      goal: `Get the precise, technically correct definition — docs are the source of truth.`,
+      tip: `Official docs are dry but accurate. Skim first, then go deep only on the parts you're unsure about.` },
+    { id: "practice", cat: "Practice", title: `Hands-on practice: ${topic}`, est: "60 min", priority: "High", resource: phase.res.practice,
+      steps: [
+        `Open "${phase.res.practice}" and pick 3–5 exercises related to "${topic}".`,
+        `Attempt each exercise without looking at the solution first.`,
+        `If stuck for more than 10 minutes, check a hint — not the full solution.`,
+        `After solving, compare your approach with the sample solution and note what you'd do differently.`
+      ],
+      goal: `Build muscle memory for "${topic}" by solving problems hands-on.`,
+      tip: `Struggling a bit before checking the answer is exactly how the skill sticks.` },
+    { id: "assignment", cat: "Assignment", title: `Assignment — apply ${topic}`, est: "40 min", priority: "High", resource: "Self-graded",
+      steps: [
+        `Pick a small, self-contained problem that uses "${topic}" (from today's phase: ${phase.name}).`,
+        `Solve it from scratch without referring back to the theory notes.`,
+        `Self-grade it: did you get the right output? Was your approach efficient?`,
+        `Write one sentence on what you'd improve if you did it again.`
+      ],
+      goal: `Prove to yourself that you can apply "${topic}" independently, not just recognize it.`,
+      tip: `This is the step that actually counts in interviews — applied knowledge, not memorized facts.` },
+    { id: "interview", cat: "Interview Questions", title: `Answer 3 interview questions on ${phase.skill}`, est: "20 min", priority: "Medium", resource: "Question Bank",
+      steps: [
+        `Go to the "Mock Interview" tab and pick 3 questions tagged "${phase.skill}".`,
+        `Answer each one out loud, as if a real interviewer is listening.`,
+        `Time yourself — aim for a clear answer within 60–90 seconds per question.`,
+        `Write down the key points of your answer so you can revise them later.`
+      ],
+      goal: `Get comfortable explaining "${phase.skill}" concepts under light pressure.`,
+      tip: `Speaking out loud (not just thinking the answer) is what makes real interviews feel less scary.` },
+    { id: "english", cat: "English", title: "Speaking, grammar & pronunciation practice", est: "25 min", priority: "Medium", resource: "Daily English Set",
+      steps: [
+        `Open the "Vocabulary" tab and review today's 10 words.`,
+        `Say each word out loud 3 times, focusing on the pronunciation guide.`,
+        `Use 3 of today's words in full sentences related to your ${phase.skill} work.`,
+        `Record yourself speaking for 1 minute about today's topic and listen back.`
+      ],
+      goal: `Build clear, confident spoken English for interviews and meetings.`,
+      tip: `Recording your own voice feels awkward but is one of the fastest ways to fix pronunciation habits.` },
+    { id: "revision", cat: "Revision", title: "Spaced-repetition revision", est: "15 min", priority: "Medium", resource: "Auto-generated",
+      steps: [
+        `Check the "Spaced-repetition revision" list on the Today tab.`,
+        `For each topic listed, try to recall the definition from memory before re-reading it.`,
+        `Re-read only the parts you couldn't recall.`,
+        `Update your notes if you find a better way to explain the concept now.`
+      ],
+      goal: `Keep older topics fresh so you don't quietly forget them.`,
+      tip: `Recall-first, read-second is more effective than just re-reading your notes.` },
+    { id: "notes", cat: "Notes", title: `Write revision notes on ${topic}`, est: "15 min", priority: "Low", resource: "Notes tab",
+      steps: [
+        `Open the "Notes" tab.`,
+        `Write a short summary of "${topic}" in 4–6 bullet points.`,
+        `Include one example and one common mistake to avoid.`,
+        `Keep it short — these notes are for quick revision later, not a full essay.`
+      ],
+      goal: `Create a fast, personal reference you can re-read in under 2 minutes.`,
+      tip: `Future-you will thank present-you for keeping these notes short and scannable.` },
   ];
   if (isMiniProjectDay(day, phase)) {
-    tasks.splice(5, 0, { id: "miniproject", cat: "Mini Project", title: `Mini project checkpoint: ${phase.name}`, est: "50 min", priority: "High", resource: "Build & save to GitHub" });
+    tasks.splice(5, 0, { id: "miniproject", cat: "Mini Project", title: `Mini project checkpoint: ${phase.name}`, est: "50 min", priority: "High", resource: "Build & save to GitHub",
+      steps: [
+        `Open the "Projects" tab and find a project matching the "${phase.skill}" skill.`,
+        `Work on the next checkpoint of that project — don't try to finish it all in one sitting.`,
+        `Save your progress and push it to your GitHub portfolio repo.`,
+        `Write a one-line commit message describing what you added today.`
+      ],
+      goal: `Turn today's learning into a visible, working piece of your portfolio.`,
+      tip: `Small, regular commits look better to recruiters than one giant commit at the end.` });
   }
   return { phase, topic, difficulty, tasks };
 }
@@ -293,21 +373,26 @@ function esc(s) {
 }
 
 /* ============================================================
-   APPLICATION STATE (in-memory only)
+   APPLICATION STATE (in-memory only, mirrors React useState)
    ============================================================ */
 const state = {
   theme: "dark",
   tab: "dashboard",
   mobileMore: false,
   day: 1,
-  completed: {},
+  maxDayReached: 1,       // furthest day the learner has actually unlocked
+  completed: {},          // { [day]: { [taskId]: true } }
   xp: 0,
   coins: 0,
   streak: 0,
   longestStreak: 0,
   confetti: false,
+  taskDetail: null,       // { day, taskId } — controls the task detail modal
   notesText: "",
-  jobs: [],
+  jobs: [
+    { id: 1, company: "Zynta Retail", role: "Business Analyst", applied: "2 Jul", status: "Interview" },
+    { id: 2, company: "Nimbus Analytics", role: "Data Analyst", applied: "28 Jun", status: "Applied" },
+  ],
   mentorLog: [
     { role: "ai", text: "Mission Mentor online. Ask me \"Aaj mujhe kya padhna chahiye?\" any time and I'll pull it straight from today's plan." },
   ],
@@ -351,37 +436,97 @@ function render() {
   const doneCount = checklist.tasks.filter((t) => doneMap[t.id]).length;
   const dayPct = Math.round((doneCount / checklist.tasks.length) * 100);
 
-  // Remember scroll + focus state for the active textual input so re-renders don't jar mobile typing
-  const activeId = document.activeElement ? document.activeElement.id : null;
-  const activeSelStart = (document.activeElement && 'selectionStart' in document.activeElement) ? document.activeElement.selectionStart : null;
-
   app.innerHTML = `
     ${renderSidebar()}
     <div id="main">
       ${renderTopbar()}
       <div id="content">
         ${state.missedBanner ? renderMissedBanner() : ""}
-        <div class="tab-view active" data-tab="${state.tab}"></div>
+        <div class="tab-view ${state.tab === 'dashboard' ? 'active' : ''}" data-tab="dashboard"></div>
+        <div class="tab-view ${state.tab === 'today' ? 'active' : ''}" data-tab="today"></div>
+        <div class="tab-view ${state.tab === 'roadmap' ? 'active' : ''}" data-tab="roadmap"></div>
+        <div class="tab-view ${state.tab === 'projects' ? 'active' : ''}" data-tab="projects"></div>
+        <div class="tab-view ${state.tab === 'mentor' ? 'active' : ''}" data-tab="mentor"></div>
+        <div class="tab-view ${state.tab === 'interview' ? 'active' : ''}" data-tab="interview"></div>
+        <div class="tab-view ${state.tab === 'progress' ? 'active' : ''}" data-tab="progress"></div>
+        <div class="tab-view ${state.tab === 'vocab' ? 'active' : ''}" data-tab="vocab"></div>
+        <div class="tab-view ${state.tab === 'notes' ? 'active' : ''}" data-tab="notes"></div>
+        <div class="tab-view ${state.tab === 'jobs' ? 'active' : ''}" data-tab="jobs"></div>
+        <div class="tab-view ${state.tab === 'resume' ? 'active' : ''}" data-tab="resume"></div>
+        <div class="tab-view ${state.tab === 'settings' ? 'active' : ''}" data-tab="settings"></div>
       </div>
     </div>
     ${renderMobileNav()}
     ${renderMoreSheet()}
+    ${state.taskDetail ? renderTaskDetailModal() : ""}
   `;
 
+  // fill the active tab content (only render what's visible, cheap re-render each time)
   const target = app.querySelector(`.tab-view[data-tab="${state.tab}"]`);
   target.innerHTML = renderTabContent(state.tab, { checklist, quote, vocab, readiness, overallPct, doneMap, doneCount, dayPct });
 
   attachHandlers();
+}
 
-  if (activeId) {
-    const el = document.getElementById(activeId);
-    if (el) {
-      el.focus();
-      if (activeSelStart !== null && 'setSelectionRange' in el) {
-        try { el.setSelectionRange(activeSelStart, activeSelStart); } catch (e) {}
-      }
-    }
-  }
+/* ============================================================
+   TASK DETAIL MODAL
+   ============================================================ */
+function renderTaskDetailModal() {
+  const { day, taskId } = state.taskDetail;
+  const checklist = generateChecklist(day);
+  const task = checklist.tasks.find(t => t.id === taskId);
+  if (!task) return "";
+  const doneMap = state.completed[day] || {};
+  const done = !!doneMap[task.id];
+  const catColor = { Theory: AMBER, Video: CYAN, Documentation: VIOLET, Practice: AMBER, Assignment: CORAL, "Mini Project": VIOLET, "Interview Questions": CYAN, English: AMBER, Revision: CYAN, Notes: VIOLET };
+  const color = catColor[task.cat] || AMBER;
+
+  return `
+  <div id="taskDetailOverlay" class="modal-overlay">
+    <div class="modal-box" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <div class="flex items-center gap-2">
+          ${pill(task.cat, color, true)}
+          <span class="text-xs fog">Day ${day} · ${esc(checklist.phase.name)}</span>
+        </div>
+        <button id="closeTaskDetailBtn" class="modal-close-btn">${icon('x', 18)}</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="font-display text-lg font-bold paper mb-1">${esc(task.title)}</div>
+        <div class="task-meta mb-3">
+          <span>⏱ Estimated time: ${task.est}</span>
+          <span>Priority: ${task.priority}</span>
+          <span>Resource: ${esc(task.resource)}</span>
+        </div>
+
+        <div class="detail-section">
+          <div class="detail-label" style="color:${color}">Goal</div>
+          <div class="text-sm paper-dim">${esc(task.goal)}</div>
+        </div>
+
+        <div class="detail-section">
+          <div class="detail-label" style="color:${color}">Step-by-step</div>
+          <ol class="detail-steps">
+            ${task.steps.map(s => `<li>${esc(s)}</li>`).join('')}
+          </ol>
+        </div>
+
+        <div class="detail-section">
+          <div class="detail-label" style="color:${color}">Tip</div>
+          <div class="text-sm paper-dim">${esc(task.tip)}</div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        ${day < state.maxDayReached
+          ? `<div class="text-xs fog" style="text-align:center;">This is a past day — read-only history.</div>`
+          : `<button id="toggleFromModalBtn" class="btn-primary" style="background:${done ? 'var(--panel2)' : CYAN}; color:${done ? 'var(--paper-dim)' : '#0B1120'};">
+              ${done ? "Mark as not done" : "Mark this task as done"}
+            </button>`}
+      </div>
+    </div>
+  </div>`;
 }
 
 function renderSidebar() {
@@ -401,14 +546,14 @@ function renderSidebar() {
         </button>
       `).join('')}
     </nav>
-    <button id="sidebarThemeToggle" class="theme-toggle-btn" aria-label="Toggle theme">
+    <button id="sidebarThemeToggle" class="theme-toggle-btn">
       ${state.theme === 'dark' ? icon('sun', 15) : icon('moon', 15)} ${state.theme === 'dark' ? 'Light mode' : 'Dark mode'}
     </button>
   </aside>`;
 }
 
 function renderTopbar() {
-  const label = (NAV.find(n => n.id === state.tab) || {}).label || "";
+  const label = NAV.find(n => n.id === state.tab)?.label || "";
   return `
   <div id="topbar">
     <div class="topbar-brand">
@@ -420,7 +565,7 @@ function renderTopbar() {
       <span class="pill" style="background: ${AMBER}1A; color:${AMBER};">${icon('flame',12,AMBER)} ${state.streak}d</span>
       <span class="pill" style="background: ${CYAN}1A; color:${CYAN};">${icon('zap',12,CYAN)} ${state.xp} XP</span>
       <span class="pill" style="background: ${VIOLET}1A; color:${VIOLET};">${icon('coins',12,VIOLET)} ${state.coins}</span>
-      <button id="topbarThemeToggle" class="theme-toggle-mobile" aria-label="Toggle theme">${state.theme === 'dark' ? icon('sun', 15) : icon('moon', 15)}</button>
+      <button id="topbarThemeToggle" class="theme-toggle-mobile">${state.theme === 'dark' ? icon('sun', 15) : icon('moon', 15)}</button>
     </div>
   </div>`;
 }
@@ -430,7 +575,7 @@ function renderMissedBanner() {
   <div class="panel mb-4" style="border-color:${CORAL};">
     <div class="flex flex-wrap items-center justify-between gap-3">
       <div class="flex items-start gap-3">
-        <div style="margin-top:2px;flex-shrink:0;">${icon('alert', 20, CORAL)}</div>
+        <div style="margin-top:2px;">${icon('alert', 20, CORAL)}</div>
         <div>
           <div class="font-display text-sm font-bold">Missed-day recovery plan ready</div>
           <div class="mt-1 text-sm paper-dim">You skipped ${state.recoveryTasks.length} day(s). Here's a condensed catch-up so you don't have to redo the full checklist for each:</div>
@@ -454,7 +599,7 @@ function renderMobileNav() {
       <button class="mnav-btn ${state.tab === n.id ? 'active' : ''}" data-nav="${n.id}">
         ${icon(n.icon, 18, state.tab === n.id ? AMBER : 'var(--fog)')} ${n.label}
       </button>`).join('')}
-    <button id="moreBtn" class="mnav-btn" aria-label="More tabs">${icon('menu', 18, 'var(--fog)')} More</button>
+    <button id="moreBtn" class="mnav-btn">${icon('menu', 18, 'var(--fog)')} More</button>
   </div>`;
 }
 
@@ -464,7 +609,7 @@ function renderMoreSheet() {
     <div class="sheet-inner" onclick="event.stopPropagation()">
       <div class="flex items-center justify-between mb-3">
         <span class="font-display text-sm font-bold">More</span>
-        <button id="closeMoreBtn" style="background:none;border:none;color:var(--paper);" aria-label="Close menu">${icon('x', 18)}</button>
+        <button id="closeMoreBtn" style="background:none;border:none;color:var(--paper);">${icon('x', 18)}</button>
       </div>
       <div class="sheet-grid">
         ${mobileRest.map(n => `
@@ -551,9 +696,9 @@ function renderDashboard(ctx) {
           <div class="font-display mt-1 text-2xl font-bold">Day ${state.day} <span class="fog">of ${TOTAL_DAYS}</span></div>
           <div class="mt-1 text-sm paper-dim">Phase ${checklist.phase.id}/17 — ${esc(checklist.phase.name)} · Today's focus: <span style="color:${AMBER}">${esc(checklist.topic)}</span></div>
         </div>
-        <div class="hero-actions">
-          <button class="hero-btn" data-day-delta="-1">◀ Prev day</button>
-          <button class="hero-btn" data-day-delta="1">Next day ▶</button>
+        <div class="flex gap-2">
+          <button class="hero-btn" data-day-delta="-1" ${state.day <= 1 ? 'disabled' : ''}>◀ Review prev day</button>
+          ${state.day < state.maxDayReached ? `<button class="hero-btn" data-return-today="1" style="border-color:${AMBER};color:${AMBER};">Return to Day ${state.maxDayReached} ▶</button>` : ''}
         </div>
       </div>
       <div class="mt-4">${trajectoryHTML()}</div>
@@ -572,11 +717,11 @@ function renderDashboard(ctx) {
       ${statBlock('target', "Today's progress", dayPct + '%', AMBER)}
     </div>
 
-    <div class="dash-grid">
-      <div class="panel">
+    <div class="grid dash-two-col">
+      <div class="panel dash-quote-panel">
         <div class="flex items-center gap-2 mb-2">${icon('quote',15,AMBER)}<span class="font-display text-sm font-bold">Today's quote</span></div>
         <div class="text-lg font-medium paper">"${esc(quote.q)}"</div>
-        <div class="mt-3 grid sm-grid-2 text-sm paper-dim">
+        <div class="mt-3 grid sm-grid-2 text-sm paper-dim" style="gap:8px;">
           <div><span style="color:${CYAN}">Meaning: </span>${esc(quote.meaning)}</div>
           <div><span style="color:${CYAN}">Apply today: </span>${esc(quote.apply)}</div>
           <div><span style="color:${CYAN}">Life lesson: </span>${esc(quote.life)}</div>
@@ -640,21 +785,25 @@ function renderToday(ctx) {
         <div class="font-display text-xl font-bold">Day ${state.day} checklist</div>
         <div class="text-sm paper-dim">${esc(checklist.phase.name)} · ${esc(checklist.topic)} · Difficulty: ${checklist.difficulty}</div>
       </div>
-      <div class="hero-actions" style="max-width:160px;">
-        <button class="hero-btn" data-day-delta="-1">◀</button>
-        <button class="hero-btn" data-day-delta="1">▶</button>
+      <div class="flex gap-2">
+        <button class="hero-btn" data-day-delta="-1" ${state.day <= 1 ? 'disabled' : ''}>◀ Review</button>
+        ${state.day < state.maxDayReached ? `<button class="hero-btn" data-return-today="1" style="border-color:${AMBER};color:${AMBER};">Back to Day ${state.maxDayReached} ▶</button>` : ''}
       </div>
     </div>
+
+    ${state.day < state.maxDayReached
+      ? `<div class="text-xs" style="color:${AMBER}">You're reviewing an earlier day. Progress here is locked — this is read-only history.</div>`
+      : `<div class="text-xs fog">Tap a task's title to see full step-by-step details. Tap the circle to mark it done. Finish every task and Day ${state.day + 1 <= TOTAL_DAYS ? state.day + 1 : state.day} unlocks automatically.</div>`}
 
     <div style="display:flex;flex-direction:column;gap:10px;">
       ${checklist.tasks.map(t => {
         const done = !!doneMap[t.id];
         return `
         <div class="panel task-panel" style="border-color:${done ? CYAN : 'var(--border)'}; opacity:${done ? 0.75 : 1};">
-          <button class="task-toggle" data-toggle-task="${t.id}" aria-label="Toggle ${esc(t.title)}">
+          <button class="task-toggle" data-toggle-task="${t.id}" aria-label="Mark ${esc(t.title)} as done">
             ${done ? icon('check', 20, CYAN) : icon('circle', 20, 'var(--fog)')}
           </button>
-          <div style="min-width:0;flex:1;">
+          <button class="task-body" data-open-task="${t.id}">
             <div class="flex flex-wrap items-center gap-2">
               ${pill(t.cat, catColor[t.cat] || AMBER, true)}
               <span class="font-medium paper" style="text-decoration:${done ? 'line-through' : 'none'};">${esc(t.title)}</span>
@@ -662,7 +811,8 @@ function renderToday(ctx) {
             <div class="task-meta">
               <span>⏱ ${t.est}</span><span>Priority: ${t.priority}</span><span>Resource: ${esc(t.resource)}</span>
             </div>
-          </div>
+          </button>
+          <div class="task-chevron">${icon('chevronRight', 16, 'var(--fog)')}</div>
         </div>`;
       }).join('')}
     </div>
@@ -679,10 +829,12 @@ function renderToday(ctx) {
       </div>
     </div>` : ''}
 
-    <button id="advanceDayBtn" class="btn-primary" style="background:${allDone ? AMBER : 'var(--panel2)'}; color:${allDone ? '#0B1120' : 'var(--fog)'}; cursor:${allDone ? 'pointer' : 'not-allowed'};" ${allDone ? '' : 'disabled'}>
+    <div class="panel" style="border-color:${allDone ? CYAN : 'var(--border)'}; text-align:center;">
       ${state.confetti ? `<span id="confetti-el">🎉✨🎊</span>` : ''}
-      ${allDone ? "Mark day complete & launch into tomorrow →" : `Complete all tasks to advance (${leftCount} left)`}
-    </button>
+      ${allDone
+        ? `<div class="font-display font-bold" style="color:${CYAN};">All tasks complete — moving to Day ${clampDay(state.day+1)} automatically ✓</div>`
+        : `<div class="text-sm paper-dim">Complete all tasks to automatically move to the next day. <span style="color:${AMBER}">${leftCount} task${leftCount === 1 ? '' : 's'} left.</span></div>`}
+    </div>
   </div>`;
 }
 
@@ -702,7 +854,7 @@ function renderRoadmap(ctx) {
         <div class="panel" style="border-color:${status === 'In progress' ? color : 'var(--border)'};">
           <div class="flex flex-wrap items-center justify-between gap-2">
             <div class="flex items-center gap-3">
-              <div style="display:flex;height:32px;width:32px;flex-shrink:0;align-items:center;justify-content:center;border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;background:${color}22;color:${color};">${p.id}</div>
+              <div style="display:flex;height:32px;width:32px;align-items:center;justify-content:center;border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;background:${color}22;color:${color};">${p.id}</div>
               <div>
                 <div class="font-medium paper">${esc(p.name)}</div>
                 <div class="text-xs fog">Day ${p.start}–${p.end} · ${p.topics.length} topics</div>
@@ -744,7 +896,7 @@ function renderProjects() {
 
 function renderMentor() {
   return `
-  <div class="mentor-page">
+  <div style="display:flex;flex-direction:column;height:70vh;">
     <div class="font-display text-xl font-bold mb-3">AI Mentor</div>
     <div class="panel mentor-log">
       ${state.mentorLog.map(m => `
@@ -752,9 +904,9 @@ function renderMentor() {
           <div class="mentor-bubble" style="background:${m.role === 'user' ? AMBER : 'var(--panel2)'}; color:${m.role === 'user' ? '#0B1120' : 'var(--paper)'};">${esc(m.text)}</div>
         </div>`).join('')}
     </div>
-    <div class="mentor-input-row">
+    <div class="mt-3 flex gap-2">
       <input id="mentorInputEl" type="text" placeholder="Ask: what should I study today?" value="${esc(state.mentorInput)}" />
-      <button id="mentorSendBtn" class="mentor-send-btn" aria-label="Send">${icon('send',16,'#0B1120')}</button>
+      <button id="mentorSendBtn" style="border-radius:8px;padding:0 16px;background:${VIOLET};border:none;display:flex;align-items:center;">${icon('send',16,'#0B1120')}</button>
     </div>
     <div class="mt-2 flex flex-wrap gap-2">
       ${["Aaj mujhe kya padhna chahiye?", "How ready am I in SQL?", "What should I revise?"].map(q => `
@@ -780,7 +932,7 @@ function renderInterview() {
         <div class="mb-1">${pill(q.skill, VIOLET, true)}</div>
         <div class="font-medium paper">${esc(q.text)}</div>
         <textarea data-interview-key="${key}" rows="3" placeholder="Speak your answer out loud, then jot the key points here...">${esc(answer)}</textarea>
-        <button class="mt-2" data-toggle-interview="${key}" style="display:flex;align-items:center;gap:6px;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:500;border:none;min-height:36px;background:${recorded ? CYAN : 'var(--panel2)'};color:${recorded ? '#0B1120' : 'var(--paper-dim)'};">
+        <button class="mt-2" data-toggle-interview="${key}" style="display:flex;align-items:center;gap:6px;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:500;border:none;background:${recorded ? CYAN : 'var(--panel2)'};color:${recorded ? '#0B1120' : 'var(--paper-dim)'};">
           ${icon('mic',13)} ${recorded ? "Practiced ✓" : "Mark as practiced"}
         </button>
       </div>`;
@@ -799,10 +951,10 @@ function renderProgress() {
     <div class="grid lg-grid-2">
       <div class="panel">
         <div class="font-display text-sm font-bold mb-2">Weekly study hours</div>
-        <div style="height:200px;display:flex;align-items:flex-end;gap:6px;padding-top:12px;border-bottom:1px solid var(--border);overflow-x:auto;">
+        <div style="height:220px;display:flex;align-items:flex-end;gap:8px;padding-top:12px;border-bottom:1px solid var(--border);">
           ${weekly.map(w => `
-            <div style="flex:1;min-width:24px;display:flex;flex-direction:column;align-items:center;gap:4px;">
-              <div style="width:100%;max-width:28px;border-radius:4px 4px 0 0;background:${AMBER};height:${Math.max(4,(w.hours/maxHours)*150)}px;" title="${w.hours}h"></div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+              <div style="width:100%;max-width:28px;border-radius:4px 4px 0 0;background:${AMBER};height:${Math.max(4,(w.hours/maxHours)*170)}px;" title="${w.hours}h"></div>
               <span class="text-xs fog">${w.week}</span>
             </div>`).join('')}
         </div>
@@ -819,7 +971,7 @@ function renderProgress() {
       </div>
     </div>
     <div class="panel">
-      <div class="flex items-center justify-between mb-3" style="flex-wrap:wrap;gap:6px;">
+      <div class="flex items-center justify-between mb-3">
         <span class="font-display text-sm font-bold">240-day heatmap</span>
         <span class="text-xs fog">Streak ${state.streak}d · Longest ${state.longestStreak}d · Overall ${overallPct}%</span>
       </div>
@@ -855,8 +1007,8 @@ function renderNotes() {
   <div style="display:flex;flex-direction:column;gap:12px;">
     <div class="font-display text-xl font-bold">Notes — Day ${state.day}</div>
     <div class="panel">
-      <textarea id="notesTextarea" rows="14" style="resize:vertical;" placeholder="Write markdown notes here — auto-saved to this session...">${esc(state.notesText)}</textarea>
-      <div class="mt-2 text-xs fog" id="notesCounter">Saved in this session · ${state.notesText.length} characters</div>
+      <textarea id="notesTextarea" rows="16" style="resize:none;" placeholder="Write markdown notes here — auto-saved to this session...">${esc(state.notesText)}</textarea>
+      <div class="mt-2 text-xs fog">Saved in this session · ${state.notesText.length} characters</div>
     </div>
   </div>`;
 }
@@ -868,21 +1020,19 @@ function renderJobs() {
   <div style="display:flex;flex-direction:column;gap:12px;">
     <div class="flex items-center justify-between">
       <div class="font-display text-xl font-bold">Job application tracker</div>
-      <button id="addJobBtn" style="display:flex;align-items:center;gap:4px;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;background:${AMBER};color:#0B1120;border:none;min-height:36px;">${icon('plus',14,'#0B1120')} Add</button>
+      <button id="addJobBtn" style="display:flex;align-items:center;gap:4px;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:600;background:${AMBER};color:#0B1120;border:none;">${icon('plus',14,'#0B1120')} Add</button>
     </div>
     <div style="display:flex;flex-direction:column;gap:10px;">
       ${state.jobs.map(j => `
         <div class="panel">
-          <div class="job-card">
-            <div class="job-field"><label>Company</label><input type="text" data-job-id="${j.id}" data-job-field="company" value="${esc(j.company)}" /></div>
-            <div class="job-field"><label>Role</label><input type="text" data-job-id="${j.id}" data-job-field="role" value="${esc(j.role)}" /></div>
-            <div class="job-field"><label>Applied</label><input type="text" data-job-id="${j.id}" data-job-field="applied" value="${esc(j.applied)}" /></div>
-            <div class="job-field"><label>Status</label>
-              <select data-job-id="${j.id}" data-job-field="status" style="color:${statusColor[j.status]};">
-                ${statuses.map(s => `<option value="${s}" ${s === j.status ? 'selected' : ''}>${s}</option>`).join('')}
-              </select>
-            </div>
-            <button class="job-remove-btn" data-remove-job="${j.id}">${icon('trash',14,CORAL)} Remove</button>
+          <div class="grid grid-2 sm-grid-3" style="grid-template-columns: repeat(2,1fr); align-items:center;">
+            <input type="text" data-job-id="${j.id}" data-job-field="company" value="${esc(j.company)}" style="background:transparent;" />
+            <input type="text" data-job-id="${j.id}" data-job-field="role" value="${esc(j.role)}" style="background:transparent;" />
+            <input type="text" data-job-id="${j.id}" data-job-field="applied" value="${esc(j.applied)}" style="background:transparent;" />
+            <select data-job-id="${j.id}" data-job-field="status" style="background:transparent; color:${statusColor[j.status]};">
+              ${statuses.map(s => `<option value="${s}" ${s === j.status ? 'selected' : ''}>${s}</option>`).join('')}
+            </select>
+            <button data-remove-job="${j.id}" style="display:flex;align-items:center;justify-content:center;gap:4px;border-radius:8px;padding:4px 8px;font-size:12px;background:none;border:none;color:${CORAL};">${icon('trash',14,CORAL)} Remove</button>
           </div>
         </div>`).join('')}
       ${state.jobs.length === 0 ? `<div class="text-sm fog">No applications yet — add your first one above.</div>` : ''}
@@ -951,7 +1101,7 @@ function renderSettings() {
 }
 
 /* ============================================================
-   MENTOR LOGIC
+   MENTOR LOGIC (identical rules to React version)
    ============================================================ */
 function sendMentor(customText) {
   const text = (customText !== undefined ? customText : state.mentorInput).trim();
@@ -987,6 +1137,7 @@ function sendMentor(customText) {
   state.mentorLog.push({ role: "ai", text: reply });
   state.mentorInput = "";
   render();
+  // scroll mentor log to bottom + refocus input if mentor tab active
   requestAnimationFrame(() => {
     const log = document.querySelector('.mentor-log');
     if (log) log.scrollTop = log.scrollHeight;
@@ -994,15 +1145,29 @@ function sendMentor(customText) {
 }
 
 /* ============================================================
-   ACTIONS
+   ACTIONS (mirror React state setters)
    ============================================================ */
-function toggleTask(id) {
-  const dayMap = { ...(state.completed[state.day] || {}) };
+function toggleTask(id, dayOverride) {
+  const targetDay = dayOverride || state.day;
+  // Past days (already completed history) are read-only — only the day
+  // currently unlocked (maxDayReached) can be edited.
+  if (targetDay < state.maxDayReached) return;
+  const dayMap = { ...(state.completed[targetDay] || {}) };
   const wasOn = !!dayMap[id];
   dayMap[id] = !wasOn;
-  state.completed[state.day] = dayMap;
+  state.completed[targetDay] = dayMap;
   state.xp = Math.max(0, state.xp + (wasOn ? -10 : 10));
-  render();
+
+  // Auto-advance: if this was the day currently on screen and every task is
+  // now complete, move to the next day automatically (no manual button).
+  const checklist = generateChecklist(targetDay);
+  const allDone = checklist.tasks.every(t => dayMap[t.id]);
+  if (allDone && targetDay === state.day) {
+    render(); // show the "all done" state briefly before advancing
+    setTimeout(() => advanceDay(), 550);
+  } else {
+    render();
+  }
 }
 
 function advanceDay() {
@@ -1010,12 +1175,14 @@ function advanceDay() {
   const doneMap = state.completed[state.day] || {};
   const allDone = checklist.tasks.every(t => doneMap[t.id]);
   if (!allDone) return;
+  if (state.day >= TOTAL_DAYS) { render(); return; }
   state.streak += 1;
   state.longestStreak = Math.max(state.longestStreak, state.streak);
   state.xp += 100;
   state.coins += 50;
   state.confetti = true;
   state.day = clampDay(state.day + 1);
+  state.maxDayReached = Math.max(state.maxDayReached, state.day);
   render();
   setTimeout(() => { state.confetti = false; render(); }, 1400);
 }
@@ -1037,6 +1204,7 @@ function simulateMissedDays() {
 function attachHandlers() {
   const app = document.getElementById("app");
 
+  // Nav buttons (sidebar, mobile bottom nav, sheet)
   app.querySelectorAll('[data-nav]').forEach(btn => {
     btn.addEventListener('click', () => {
       state.tab = btn.getAttribute('data-nav');
@@ -1045,11 +1213,13 @@ function attachHandlers() {
     });
   });
 
+  // Theme toggles
   const sbToggle = document.getElementById('sidebarThemeToggle');
   if (sbToggle) sbToggle.addEventListener('click', () => { state.theme = state.theme === 'dark' ? 'light' : 'dark'; render(); });
   const tbToggle = document.getElementById('topbarThemeToggle');
   if (tbToggle) tbToggle.addEventListener('click', () => { state.theme = state.theme === 'dark' ? 'light' : 'dark'; render(); });
 
+  // More sheet
   const moreBtn = document.getElementById('moreBtn');
   if (moreBtn) moreBtn.addEventListener('click', () => { state.mobileMore = true; render(); });
   const closeMoreBtn = document.getElementById('closeMoreBtn');
@@ -1057,12 +1227,20 @@ function attachHandlers() {
   const moresheet = document.getElementById('moresheet');
   if (moresheet) moresheet.addEventListener('click', (e) => { if (e.target === moresheet) { state.mobileMore = false; render(); } });
 
+  // Missed banner
   const startRecoveryBtn = document.getElementById('startRecoveryBtn');
   if (startRecoveryBtn) startRecoveryBtn.addEventListener('click', () => { state.missedBanner = false; render(); });
 
+  // Day navigation
   app.querySelectorAll('[data-day-delta]').forEach(btn => {
     btn.addEventListener('click', () => {
       state.day = clampDay(state.day + parseInt(btn.getAttribute('data-day-delta'), 10));
+      render();
+    });
+  });
+  app.querySelectorAll('[data-return-today]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.day = state.maxDayReached;
       render();
     });
   });
@@ -1073,6 +1251,7 @@ function attachHandlers() {
     });
   });
 
+  // Dashboard mentor quick / simulate missed
   const mentorQuickBtn = document.getElementById('mentorQuickBtn');
   if (mentorQuickBtn) mentorQuickBtn.addEventListener('click', () => {
     sendMentor("Aaj mujhe kya padhna chahiye?");
@@ -1082,16 +1261,40 @@ function attachHandlers() {
   const simulateMissedBtn = document.getElementById('simulateMissedBtn');
   if (simulateMissedBtn) simulateMissedBtn.addEventListener('click', simulateMissedDays);
 
+  // Today tab: task toggles + open task detail
   app.querySelectorAll('[data-toggle-task]').forEach(btn => {
     btn.addEventListener('click', () => toggleTask(btn.getAttribute('data-toggle-task')));
   });
-  const advanceDayBtn = document.getElementById('advanceDayBtn');
-  if (advanceDayBtn) advanceDayBtn.addEventListener('click', advanceDay);
+  app.querySelectorAll('[data-open-task]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.taskDetail = { day: state.day, taskId: btn.getAttribute('data-open-task') };
+      render();
+    });
+  });
 
+  // Task detail modal
+  const taskDetailOverlay = document.getElementById('taskDetailOverlay');
+  if (taskDetailOverlay) {
+    taskDetailOverlay.addEventListener('click', () => { state.taskDetail = null; render(); });
+  }
+  const closeTaskDetailBtn = document.getElementById('closeTaskDetailBtn');
+  if (closeTaskDetailBtn) closeTaskDetailBtn.addEventListener('click', () => { state.taskDetail = null; render(); });
+  const toggleFromModalBtn = document.getElementById('toggleFromModalBtn');
+  if (toggleFromModalBtn) {
+    toggleFromModalBtn.addEventListener('click', () => {
+      const { day, taskId } = state.taskDetail;
+      state.taskDetail = null;
+      toggleTask(taskId, day);
+    });
+  }
+
+  // Mentor tab
   const mentorInputEl = document.getElementById('mentorInputEl');
   if (mentorInputEl) {
     mentorInputEl.addEventListener('input', (e) => { state.mentorInput = e.target.value; });
     mentorInputEl.addEventListener('keydown', (e) => { if (e.key === 'Enter') sendMentor(); });
+    mentorInputEl.focus();
+    mentorInputEl.selectionStart = mentorInputEl.value.length;
   }
   const mentorSendBtn = document.getElementById('mentorSendBtn');
   if (mentorSendBtn) mentorSendBtn.addEventListener('click', () => sendMentor());
@@ -1099,6 +1302,7 @@ function attachHandlers() {
     btn.addEventListener('click', () => sendMentor(btn.getAttribute('data-mentor-quick')));
   });
 
+  // Interview tab
   app.querySelectorAll('[data-interview-key]').forEach(ta => {
     ta.addEventListener('input', (e) => {
       state.interviewAnswers[ta.getAttribute('data-interview-key')] = e.target.value;
@@ -1112,15 +1316,17 @@ function attachHandlers() {
     });
   });
 
+  // Vocabulary / Notes
   const notesTextarea = document.getElementById('notesTextarea');
   if (notesTextarea) {
     notesTextarea.addEventListener('input', (e) => {
       state.notesText = e.target.value;
-      const counter = document.getElementById('notesCounter');
+      const counter = notesTextarea.parentElement.querySelector('.fog');
       if (counter) counter.textContent = `Saved in this session · ${state.notesText.length} characters`;
     });
   }
 
+  // Jobs tab
   const addJobBtn = document.getElementById('addJobBtn');
   if (addJobBtn) addJobBtn.addEventListener('click', () => {
     state.jobs.push({ id: Date.now(), company: "New company", role: "Role", applied: "Today", status: "Applied" });
@@ -1143,6 +1349,7 @@ function attachHandlers() {
     });
   });
 
+  // Settings tab
   const setThemeDark = document.getElementById('setThemeDark');
   if (setThemeDark) setThemeDark.addEventListener('click', () => { state.theme = 'dark'; render(); });
   const setThemeLight = document.getElementById('setThemeLight');
