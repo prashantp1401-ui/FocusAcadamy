@@ -375,6 +375,8 @@ function esc(s) {
 /* ============================================================
    APPLICATION STATE (in-memory only, mirrors React useState)
    ============================================================ */
+const STORAGE_KEY = "mission12lpa_state_v1";
+
 const state = {
   theme: "dark",
   tab: "dashboard",
@@ -403,6 +405,39 @@ const state = {
   interviewRecorded: {},
 };
 
+/* ============================================================
+   PERSISTENCE (localStorage) — so completed tasks, day progress,
+   XP, streaks, notes, jobs etc. survive closing/reopening the app.
+   ============================================================ */
+const PERSISTED_KEYS = [
+  "theme", "tab", "day", "maxDayReached", "completed", "xp", "coins",
+  "streak", "longestStreak", "notesText", "jobs", "mentorLog",
+  "missedBanner", "recoveryTasks", "interviewAnswers", "interviewRecorded",
+];
+
+function saveState() {
+  try {
+    const toSave = {};
+    PERSISTED_KEYS.forEach((k) => { toSave[k] = state[k]; });
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
+  } catch (e) {
+    console.error("Could not save progress:", e);
+  }
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    const saved = JSON.parse(raw);
+    PERSISTED_KEYS.forEach((k) => {
+      if (saved[k] !== undefined) state[k] = saved[k];
+    });
+  } catch (e) {
+    console.error("Could not load saved progress:", e);
+  }
+}
+
 const NAV = [
   { id: "dashboard", label: "Dashboard", icon: "home" },
   { id: "today", label: "Today", icon: "calendarCheck" },
@@ -424,6 +459,7 @@ const mobileRest = NAV.slice(4);
    RENDER: ROOT SHELL
    ============================================================ */
 function render() {
+  saveState();
   document.documentElement.className = state.theme === "dark" ? "theme-dark" : "theme-light";
   const app = document.getElementById("app");
 
@@ -1089,14 +1125,20 @@ function renderSettings() {
       </div>
     </div>
     <div class="panel">
-      <div class="mb-2 text-sm font-medium">Jump to day</div>
+      <div class="mb-2 text-sm font-medium">Jump to day (preview only)</div>
       <input type="number" id="jumpDayInput" min="1" max="${TOTAL_DAYS}" value="${state.day}" />
+      <div class="mt-1 text-xs fog">This only changes which day you're viewing — it does not unlock a day early or affect your saved progress.</div>
     </div>
     <div class="panel">
       <div class="mb-1 text-sm font-medium">Daily study goal</div>
       <div class="text-xs fog">4–6 hours/day recommended · reminders and push notifications are visual placeholders in this preview.</div>
     </div>
-    <div class="text-xs fog">All progress in this preview lives in memory for the current session only — nothing is saved to a server or browser storage.</div>
+    <div class="panel" style="border-color:${CORAL};">
+      <div class="mb-1 text-sm font-medium">Reset all progress</div>
+      <div class="mb-2 text-xs fog">This clears completed tasks, XP, coins, streaks, notes, and job tracker entries, and starts back at Day 1. This cannot be undone.</div>
+      <button id="resetProgressBtn" class="btn-primary" style="background:${CORAL};color:#0B1120;">Reset progress</button>
+    </div>
+    <div class="text-xs fog">Your progress is saved automatically in this browser (localStorage), so completed tasks and your current day stay intact even after closing and reopening the app on this device.</div>
   </div>`;
 }
 
@@ -1359,9 +1401,43 @@ function attachHandlers() {
     state.day = clampDay(Number(e.target.value) || 1);
     render();
   });
+  const resetProgressBtn = document.getElementById('resetProgressBtn');
+  if (resetProgressBtn) resetProgressBtn.addEventListener('click', () => {
+    if (!confirm("Reset all progress? This clears completed tasks, XP, coins, streaks, notes, and job entries, and starts back at Day 1. This cannot be undone.")) return;
+    try { localStorage.removeItem(STORAGE_KEY); } catch (e) { console.error(e); }
+    Object.assign(state, {
+      theme: state.theme, // keep the person's theme choice
+      tab: "dashboard",
+      mobileMore: false,
+      day: 1,
+      maxDayReached: 1,
+      completed: {},
+      xp: 0,
+      coins: 0,
+      streak: 0,
+      longestStreak: 0,
+      confetti: false,
+      taskDetail: null,
+      notesText: "",
+      jobs: [
+        { id: 1, company: "Zynta Retail", role: "Business Analyst", applied: "2 Jul", status: "Interview" },
+        { id: 2, company: "Nimbus Analytics", role: "Data Analyst", applied: "28 Jun", status: "Applied" },
+      ],
+      mentorLog: [
+        { role: "ai", text: "Mission Mentor online. Ask me \"Aaj mujhe kya padhna chahiye?\" any time and I'll pull it straight from today's plan." },
+      ],
+      mentorInput: "",
+      missedBanner: false,
+      recoveryTasks: [],
+      interviewAnswers: {},
+      interviewRecorded: {},
+    });
+    render();
+  });
 }
 
 /* ============================================================
    INIT
    ============================================================ */
+loadState();
 render();
